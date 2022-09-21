@@ -43,10 +43,25 @@ module Input
     else
       print "Please input your guess: "
     end
-    user_input = gets.chomp
-    until user_input.length == 4 do
-      print "The guess set must be 4 character long.\nPlease input your guess again: "
-      user_input = gets.chomp
+    user_input = gets.chomp.to_s.split("")
+    until user_input.uniq.length == 4 do
+      print "The guess set must be 4 character long and unique.\nPlease input your guess again: "
+      user_input = gets.chomp.to_s.split("")
+    end
+    user_input
+  end
+
+  def receive_player_code(incoming_request = "")
+    if incoming_request == "invalid"
+      puts "Your code contain invalid character. Valid = {1, 2, 3, 4, 5, 6}"
+      print "Please input your code again: "
+    else
+      print "Please input your code: "
+    end
+    user_input = gets.chomp.to_s.split("")
+    until user_input.uniq.length == 4 do
+      print "The code set must be 4 character long and unique.\nPlease input your code again: "
+      user_input = gets.chomp.to_s.split("")
     end
     user_input
   end

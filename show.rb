@@ -2,7 +2,7 @@ require "colorize"
 
 module Show
   def show_user_input(guess)
-    guess.each_char do |color|
+    guess.each do |color|
       case color
       when "1"
         print "\u2b24 ".red
@@ -18,6 +18,18 @@ module Show
         print "\u2b24 ".black
       end
     end
+  end
+
+  def show_hint(arr)
+    arr.each do |color|
+      case color
+      when "R"
+        print "● ".red
+      when "W"
+        print "● ".white
+      end
+    end
     puts
   end
+
 end

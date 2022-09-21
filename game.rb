@@ -10,6 +10,7 @@ class Game
     @guesses
     @max_tries = 12
     @win = false
+    @code = []
   end
 
   def play
@@ -21,6 +22,7 @@ class Game
   def new_game
     system "clear"
     @mode = nil
+    @win = false
   end
   
   def initial_settings
@@ -38,37 +40,93 @@ class Game
     if mode == 1
       set_code
       welcome_message
-      @max_tries.times do
+      tries = 1
+      while (tries <= @max_tries and not @win)
+        puts "Tries : #{tries}"
         check_valid_guess(receive_player_guess, true)
+        tries += 1
+      end
+      if @win
+        puts "CONGRATULATIONS YOU WON"
+      elsif tries == @max_tries+1
+        puts "GAME OVER | Max tries has been reached"
       end
     elsif mode == 2
-      puts "AI Logic hasn't been made, yet"
+      user_set_code
+      puts "The computer will guess your code\nPress enter to let the computer guess each time/iteration"
+      tries = 1
+      while (tries <= @max_tries and not @win)
+        puts "Tries : #{tries}"
+        check_answer(computer_guess)
+        input = gets
+        until input == "\n" do
+          puts "Please press enter to continue"
+          input = gets
+        end
+        tries += 1
+      end
+      if @win
+        puts "CONGRATULATIONS YOU WON"
+      elsif tries == @max_tries+1
+        puts "GAME OVER | Max tries has been reached"
+      end
     end
   end
 
   def set_code
-    @code = []
-    4.times do |index|
-      @code[index] = rand(1..6).to_s
+    while @code.length < 4 do
+      value = rand(1..6).to_s
+      # check repeat element
+      unless @code.include?(value)
+        @code.push(value)
+      end
     end
-    print @code
-    puts
+  end
+
+  def user_set_code
+    check_valid_code(receive_player_code, true)
+  end
+
+  def computer_guess
+    comp_ans = []
+    while comp_ans.length < 4 do
+      value = rand(1..6).to_s
+      # check repeat element
+      unless comp_ans.include?(value)
+        comp_ans.push(value)
+      end
+    end
+    comp_ans
   end
 
   def check_answer(guess)
-    @guesses = guess.to_s.split("")
-    print "#{@code}\n"
-    print "#{@guesses}\n"
-    print "#{(@guesses - @code)}\n"
+    @hint = []
+    @guesses = guess
+    ref = @guesses.map { |x| @code.find_index(x)}
+    ref.each do |ref_elm|
+      if ref_elm
+        if @guesses[ref_elm] == @code[ref_elm]
+          @hint.push("R")
+        else
+          @hint.push("W")
+        end
+      end
+    end
     show_user_input(guess)
+    print "\tFeedback = "
+    show_hint(@hint)
+    validate_hint(@hint)
+  end
+
+  def validate_hint(hint)
+    ref = ["R", "R", "R", "R"]
+    if hint == ref
+      @win = true
+    end
   end
 
   def check_valid_guess(guess, valid)
-    guess.each_char do |digit|
-      unless digit.to_i.between?(1, 6)
-        valid = false
-      end
-    end
+    valid = guess.all? { |digit| digit.to_i.between?(1,6) }
 
     if valid
       check_answer(guess)
@@ -78,4 +136,18 @@ class Game
     valid
   end
 
+  def check_valid_code(code, valid)
+    valid = code.all? { |digit| digit.to_i.between?(1,6) }
+
+    if valid
+      @code = code
+      print "Your code is "
+      show_user_input(@code)
+      puts
+    else
+      check_valid_code(receive_player_code("invalid"), true)
+    end
+    valid
+  end
+  
 end
